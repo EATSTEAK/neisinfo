@@ -1,0 +1,38 @@
+<HTML>
+<HEAD>
+    <meta charset="UTF-8">
+    <title>School.getSchedule - neisinfo</title>
+    <link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">neisinfo</a>&nbsp;/&nbsp;<a href="../index.html">me.itstake.neisinfo</a>&nbsp;/&nbsp;<a
+        href="index.html">School</a>&nbsp;/&nbsp;<a href="./get-schedule.html">getSchedule</a><br/>
+<br/>
+<h1>getSchedule</h1>
+<a name="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)"></a>
+<code><span class="keyword">fun </span><span class="identifier">getSchedule</span><span class="symbol">(</span><span
+        class="identifier"
+        id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/year">year</span><span
+        class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
+        class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier"
+                                                                             id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/month">month</span><span
+        class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
+        class="identifier">Int</span></a><span class="symbol">, </span><span class="identifier"
+                                                                             id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/deep">deep</span><span
+        class="symbol">:</span>&nbsp;<a
+        href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span
+        class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><span
+        class="identifier">JSONObject</span></code>
+<p>Get Schedule data of Selected Month from NEIS Server.</p>
+<h3>Parameters</h3>
+<p><a name="year"></a>
+    <code>year</code> - </p>
+<p><a name="month"></a>
+    <code>month</code> - </p>
+<p><a name="deep"></a>
+    <code>deep</code> - Perform a deep find. this will make a lot of web requests, but you'll get details(which you can
+    get with updateEventInfo() function in SchoolEvent object) for event.</p>
+<p><strong>Return</strong><br/>
+    Schedule data based on JSON</p>
+</BODY>
+</HTML>

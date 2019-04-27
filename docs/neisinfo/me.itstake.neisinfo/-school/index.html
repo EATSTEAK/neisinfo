@@ -1,0 +1,179 @@
+<HTML>
+<HEAD>
+    <meta charset="UTF-8">
+    <title>School - neisinfo</title>
+    <link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">neisinfo</a>&nbsp;/&nbsp;<a href="../index.html">me.itstake.neisinfo</a>&nbsp;/&nbsp;<a
+        href="./index.html">School</a><br/>
+<br/>
+<h1>School</h1>
+<code><span class="keyword">class </span><span class="identifier">School</span></code>
+<p>Basic object for get Information about Schools.</p>
+<h3>Types</h3>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <p><a href="-school-region/index.html">SchoolRegion</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">SchoolRegion</span></code>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p><a href="-school-type/index.html">SchoolType</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">enum</span> <span class="keyword">class </span><span class="identifier">SchoolType</span></code>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h3>Constructors</h3>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <p><a href="-init-.html">&lt;init&gt;</a></p>
+        </td>
+        <td>
+            <code><span class="identifier">School</span><span class="symbol">(</span><span class="identifier"
+                                                                                           id="me.itstake.neisinfo.School$<init>(me.itstake.neisinfo.School.SchoolType, me.itstake.neisinfo.School.SchoolRegion, kotlin.String)/type">type</span><span
+                    class="symbol">:</span>&nbsp;<a href="-school-type/index.html"><span class="identifier">School.SchoolType</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School$<init>(me.itstake.neisinfo.School.SchoolType, me.itstake.neisinfo.School.SchoolRegion, kotlin.String)/region">region</span><span
+                    class="symbol">:</span>&nbsp;<a href="-school-region/index.html"><span class="identifier">School.SchoolRegion</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School$<init>(me.itstake.neisinfo.School.SchoolType, me.itstake.neisinfo.School.SchoolRegion, kotlin.String)/code">code</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span
+                    class="identifier">String</span></a><span class="symbol">)</span></code>
+            <p>Creates an school object within basic information.</p>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h3>Properties</h3>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <p><a href="code.html">code</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">val </span><span class="identifier">code</span><span class="symbol">: </span><a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span
+                    class="identifier">String</span></a></code>
+            <p>School code of selected school.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p><a href="region.html">region</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">val </span><span class="identifier">region</span><span
+                    class="symbol">: </span><a href="-school-region/index.html"><span class="identifier">School.SchoolRegion</span></a></code>
+            <p>School region of selected school.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p><a href="type.html">type</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">val </span><span class="identifier">type</span><span class="symbol">: </span><a
+                    href="-school-type/index.html"><span class="identifier">School.SchoolType</span></a></code>
+            <p>School type of selected school.</p>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h3>Functions</h3>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <p><a href="get-meal-monthly.html">getMealMonthly</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">fun </span><span class="identifier">getMealMonthly</span><span
+                    class="symbol">(</span><span class="identifier"
+                                                 id="me.itstake.neisinfo.School$getMealMonthly(kotlin.Int, kotlin.Int)/year">year</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School$getMealMonthly(kotlin.Int, kotlin.Int)/month">month</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span
+                    class="symbol">)</span><span class="symbol">: </span><span
+                    class="identifier">JSONObject</span></code>
+            <p>Get Meal data of Selected Month from NEIS Server.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p><a href="get-schedule.html">getSchedule</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">fun </span><span class="identifier">getSchedule</span><span
+                    class="symbol">(</span><span class="identifier"
+                                                 id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/year">year</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/month">month</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School$getSchedule(kotlin.Int, kotlin.Int, kotlin.Boolean)/deep">deep</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span
+                    class="identifier">Boolean</span></a><span class="symbol">)</span><span
+                    class="symbol">: </span><span class="identifier">JSONObject</span></code>
+            <p>Get Schedule data of Selected Month from NEIS Server.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p><a href="get-school-info.html">getSchoolInfo</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">fun </span><span class="identifier">getSchoolInfo</span><span
+                    class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a
+                    href="../-school-info/index.html"><span class="identifier">SchoolInfo</span></a></code>
+            <p>Get basic school information from NEIS Server.</p>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h3>Companion Object Functions</h3>
+<table>
+    <tbody>
+    <tr>
+        <td>
+            <p><a href="find-school.html">findSchool</a></p>
+        </td>
+        <td>
+            <code><span class="keyword">fun </span><span class="identifier">findSchool</span><span
+                    class="symbol">(</span><span class="identifier"
+                                                 id="me.itstake.neisinfo.School.Companion$findSchool(me.itstake.neisinfo.School.SchoolRegion, kotlin.String)/region">region</span><span
+                    class="symbol">:</span>&nbsp;<a href="-school-region/index.html"><span class="identifier">School.SchoolRegion</span></a><span
+                    class="symbol">, </span><span class="identifier"
+                                                  id="me.itstake.neisinfo.School.Companion$findSchool(me.itstake.neisinfo.School.SchoolRegion, kotlin.String)/name">name</span><span
+                    class="symbol">:</span>&nbsp;<a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span
+                    class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a
+                    href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-array-list/index.html"><span
+                    class="identifier">ArrayList</span></a><span class="symbol">&lt;</span><a href="./index.html"><span
+                    class="identifier">School</span></a><span class="symbol">&gt;</span></code>
+            <p>Use this function to lookup school by name and region.</p>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</BODY>
+</HTML>
