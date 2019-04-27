@@ -5,6 +5,7 @@ import org.json.simple.JSONObject
 
 class NeisParser {
     companion object {
+
         //FOR SCHOOL INFO
         fun parseSchoolInfo(data: String): SchoolInfo {
             val convertKey = hashMapOf("학교명" to "name", "우편번호" to "zipCode", "주소" to "address", "전화번호" to "callNum", "팩스번호" to "faxNum", "홈페이지주소" to "homepage", "학생수" to "stuNum", "남" to "stuNumMen", "여" to "stuNumWomen", "학년별 학급수" to "classNumByGrade", "교원정보" to "teacherNum")
@@ -54,6 +55,54 @@ class NeisParser {
                 val td = table.substring(tdIndex + tdSize, table.indexOf("</td>", tdIndex)).trim()
                 ret[th] = td
             }
+            return ret
+        }
+
+        //FOR SCHOOL MEALS
+        fun parseSchoolMeals(data:String): JSONObject {
+            val table = data.substring(data.indexOf("<table cellspacing=\"0\" summary=\"이 표는"), data.indexOf("</table>") + 8)
+            var lastSearchedIndex = 0
+            var searchedIndex:Int
+            val ret = JSONObject()
+            while(lastSearchedIndex > -1) {
+                val tdIndex = table.indexOf("<td", lastSearchedIndex)
+                val tdSize = table.indexOf(">", tdIndex) - tdIndex + 1
+                if(tdIndex <= -1) break
+                searchedIndex = table.indexOf("</td>", tdIndex)
+                lastSearchedIndex = if(searchedIndex > -1) searchedIndex + 1 else searchedIndex
+                val td = table.substring(tdIndex + tdSize, searchedIndex).replace("<div>", "").replace("</div>", "").trim().split("<br />")
+                if(td.size > 1) {
+                    val day = td[0].toInt()
+                    val breakfastIndex = td.indexOf("[조식]")
+                    val lunchIndex = td.indexOf("[중식]")
+                    val dinnerIndex = td.indexOf("[석식]")
+                    val dayMeals = JSONObject()
+                    if(breakfastIndex > -1) dayMeals[SchoolMeal.MealTime.BREAKFAST.name] = toMealArray(td.subList(breakfastIndex + 1, if(lunchIndex > -1) lunchIndex -1 else td.size - 1))
+                    if(lunchIndex > -1) dayMeals[SchoolMeal.MealTime.LUNCH.name] = toMealArray(td.subList(lunchIndex + 1, if(dinnerIndex > -1) dinnerIndex -1 else td.size - 1))
+                    if(dinnerIndex > -1) dayMeals[SchoolMeal.MealTime.DINNER.name] = toMealArray(td.subList(dinnerIndex + 1, td.size - 1))
+                    ret[day] = dayMeals
+                }
+            }
+            return ret
+        }
+
+        private fun toMealArray(menus: List<String>): JSONArray {
+            val ret = JSONArray()
+            menus.forEach { t ->
+                val allergies = ArrayList<SchoolMeal.AllergyInfo>()
+                var name = t
+                for(i in 1..18) {
+                    val index = t.indexOf("$i.")
+                    if(index > -1) allergies.add(SchoolMeal.AllergyInfo.getByKey(i)); name = name.replace("$i.", "")
+                }
+                ret.add(SchoolMeal(name.trim(), allergies))
+            }
+            return ret
+        }
+
+        //FOR SCHOOL SCHEDULE
+        fun parseSchoolSchedule(data:String):JSONObject {
+            val ret = JSONObject()
             return ret
         }
     }

@@ -81,12 +81,10 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * @param month
      * @return Meal data based on JSON
      */
-    fun getMealMonthly(year: Int, month: Int): JSONObject {
-        val menuUrl = URL("https://stu.${region.url}/sts_sci_md00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
-        val meals = JSONObject()
-        meals[1] = SchoolMeal(SchoolMeal.MealTime.LUNCH, arrayOf(SchoolMeal.SchoolMealMenu("밥", arrayOf())))
-        return meals
-    }
+    fun getMealMonthly(year: Int, month: Int): JSONObject =
+        NeisParser.parseSchoolMeals(
+            URL("https://stu.${region.url}/sts_sci_md00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&schYm=$year${String.format("%02d", month)}&")
+                .readText())
 
     /**
      * Get Schedule data of Selected Month from NEIS Server.
@@ -94,18 +92,17 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * @param month
      * @return Schedule data based on JSON
      */
-    fun getSchedule(year: Int, month: Int): JSONObject {
-        val scheduleUrl = URL("https://stu.${region.url}/sts_sci_sf01_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
-        val schedule = JSONObject()
-        return schedule
-    }
+    fun getSchedule(year: Int, month: Int): JSONObject =
+        NeisParser.parseSchoolSchedule(
+            URL("https://stu.${region.url}/sts_sci_sf01_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&ay=$year&mm=${String.format("%02d", month)}&")
+                .readText())
 
     /**
      * Get basic school information from NEIS Server.
      * @return Get School infomation based on JSON
      */
-    fun getSchoolInfo(): SchoolInfo {
-        val data = URL("https://stu.${region.url}/sts_sci_si00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&").readText(Charsets.UTF_8)
-        return NeisParser.parseSchoolInfo(data)
-    }
+    fun getSchoolInfo(): SchoolInfo =
+        NeisParser.parseSchoolInfo(
+            URL("https://stu.${region.url}/sts_sci_si00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
+                .readText())
 }
