@@ -92,10 +92,11 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * @param month
      * @return Schedule data based on JSON
      */
-    fun getSchedule(year: Int, month: Int): JSONObject =
+    fun getSchedule(year: Int, month: Int, deep: Boolean): JSONObject =
         NeisParser.parseSchoolSchedule(
             URL("https://stu.${region.url}/sts_sci_sf01_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&ay=$year&mm=${String.format("%02d", month)}&")
-                .readText())
+                .readText(), deep, this
+        )
 
     /**
      * Get basic school information from NEIS Server.

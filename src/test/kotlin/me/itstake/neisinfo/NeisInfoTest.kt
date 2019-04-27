@@ -4,10 +4,10 @@ import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import java.io.File
-import java.net.URL
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class NeisInfoTest {
@@ -56,10 +56,29 @@ class NeisInfoTest {
     @Test
     fun schoolScheduleTest() {
         val school = School(type, region, code)
-        val schedule = school.getSchedule(year, month)
-        assertEquals(schedule.size, 31, "Returned School Schedule is incorrect.")
-        assertEquals(schedule[1], "3・1절", "Returned School Schedule's data test 1 failed.")
-        assertEquals(schedule[3], "", "Returned School Schedule's data test 2 failed.")
+        val schedule = school.getSchedule(year, month, false)
+        assertEquals("3・1절", (schedule[1] as SchoolEvent).name, "Returned School Schedule's data test 1 failed.")
+        assertFalse(schedule.containsKey(3), "Returned School Schedule's data test 2 failed.")
+        println("TEST SUCCESS")
+        println("RETURNED JSON STRING:${schedule.toJSONString()}")
+    }
+
+    @Test
+    fun schoolScheduleDeepTest() {
+        val school = School(type, region, code)
+        val schedule = school.getSchedule(year, month, true)
+        assertEquals("3・1절", (schedule[1] as SchoolEvent).name, "Returned School Schedule's data test 1 failed.")
+        assertTrue(
+            ((schedule[1] as SchoolEvent)["info"] as JSONObject).containsKey("targetGrades"),
+            "Returned School Schedule's specific information(targetGrade) is not found."
+        )
+        assertTrue(
+            ((schedule[1] as SchoolEvent)["info"] as JSONObject).containsKey("details"),
+            "Returned School Schedule's specific information(details) is not found."
+        )
+        assertFalse(schedule.containsKey(3), "Returned School Schedule's data test 2 failed.")
+        println("TEST SUCCESS")
+        println("RETURNED JSON STRING:${schedule.toJSONString()}")
     }
 
     //UNIT TESTS
@@ -92,5 +111,19 @@ class NeisInfoTest {
         assertEquals("오곡밥 ★", (((meals[4] as JSONObject)["LUNCH"] as JSONArray)[0] as SchoolMeal).name, "Returned Meal Schedule is incorrect.")
         println("TEST SUCCESS")
         println("RETURNED JSON STRING: ${meals.toJSONString()}")
+    }
+
+    @Test
+    fun schoolScheduleParseTest() {
+        val html = File("src/test/resources/neisschoolschedule.html").readText()
+        val startTime = System.nanoTime()
+        val schedule = NeisParser.parseSchoolSchedule(html, false, null)
+        val endTime = System.nanoTime()
+        println("PARSE COMPLETE")
+        println("Time taken:${TimeUnit.NANOSECONDS.toMillis(endTime - startTime)} ms")
+        assertEquals("3・1절", (schedule[1] as SchoolEvent).name, "Returned School Schedule's data test 1 failed.")
+        assertFalse(schedule.containsKey(3), "Returned School Schedule's data test 2 failed.")
+        println("TEST SUCCESS")
+        println("RETURNED JSON STRING: ${schedule.toJSONString()}")
     }
 }

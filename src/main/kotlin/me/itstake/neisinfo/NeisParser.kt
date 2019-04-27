@@ -26,8 +26,8 @@ class NeisParser {
                 "학생수", "남", "여" -> u.replace("명", "").trim().toLong()
                 "학년별 학급수" -> {
                     val array = JSONArray()
-                    u.split(",").forEach { t ->
-                        array.add(t.split("(")[1].replace("학급)", "").toLong())
+                    u.split(",").forEach { v ->
+                        array.add(v.split("(")[1].replace("학급)", "").toLong())
                     }
                     array
                 }
@@ -46,14 +46,13 @@ class NeisParser {
             while(lastSearchedIndex > -1) {
                 val thIndex = table.indexOf("<th", lastSearchedIndex)
                 if(thIndex <= -1) break
-                val thSize = table.indexOf(">", thIndex) - thIndex + 1
+                val thEnd = table.indexOf(">", thIndex) + 1
                 val tdIndex = table.indexOf("<td", lastSearchedIndex)
-                val tdSize = table.indexOf(">", tdIndex) - tdIndex + 1
+                val tdEnd = table.indexOf(">", tdIndex) + 1
                 searchedIndex = table.indexOf(">", tdIndex)
                 lastSearchedIndex = if(searchedIndex > -1) searchedIndex + 1 else searchedIndex
-                val th = table.substring(thIndex + thSize, table.indexOf("</th>", thIndex)).trim()
-                val td = table.substring(tdIndex + tdSize, table.indexOf("</td>", tdIndex)).trim()
-                ret[th] = td
+                ret[table.substring(thEnd, table.indexOf("</th>", thIndex)).trim()] =
+                    table.substring(tdEnd, table.indexOf("</td>", tdIndex)).trim()
             }
             return ret
         }
@@ -66,11 +65,12 @@ class NeisParser {
             val ret = JSONObject()
             while(lastSearchedIndex > -1) {
                 val tdIndex = table.indexOf("<td", lastSearchedIndex)
-                val tdSize = table.indexOf(">", tdIndex) - tdIndex + 1
                 if(tdIndex <= -1) break
+                val tdEnd = table.indexOf(">", tdIndex) + 1
                 searchedIndex = table.indexOf("</td>", tdIndex)
                 lastSearchedIndex = if(searchedIndex > -1) searchedIndex + 1 else searchedIndex
-                val td = table.substring(tdIndex + tdSize, searchedIndex).replace("<div>", "").replace("</div>", "").trim().split("<br />")
+                val td = table.substring(tdEnd, searchedIndex).replace("<div>", "").replace("</div>", "").trim()
+                    .split("<br />")
                 if(td.size > 1) {
                     val day = td[0].toInt()
                     val breakfastIndex = td.indexOf("[조식]")
@@ -101,8 +101,51 @@ class NeisParser {
         }
 
         //FOR SCHOOL SCHEDULE
-        fun parseSchoolSchedule(data:String):JSONObject {
+        fun parseSchoolSchedule(data: String, deep: Boolean, school: School?): JSONObject {
+            val table =
+                data.substring(data.indexOf("<table cellspacing=\"0\" summary=\"월간학사"), data.indexOf("</table>") + 8)
+            var lastSearchedIndex = 0
+            var searchedIndex: Int
             val ret = JSONObject()
+            while (lastSearchedIndex > -1) {
+                val tdIndex = table.indexOf("<td", lastSearchedIndex)
+                if (tdIndex <= -1) break
+                val tdEnd = table.indexOf(">", tdIndex) + 1
+                searchedIndex = table.indexOf("</td>", tdIndex)
+                lastSearchedIndex = if (searchedIndex > -1) searchedIndex + 1 else searchedIndex
+                val td = table.substring(tdEnd, searchedIndex).replace("<div>", "").replace("</div>", "").trim()
+                val emIndex = td.indexOf("<em")
+                if (emIndex > -1) {
+                    val strongIndex = td.indexOf("<strong", emIndex)
+                    if (strongIndex > -1) {
+                        val emEnd = td.indexOf(">", emIndex) + 1
+                        val strongEnd = td.indexOf(">", strongIndex) + 1
+                        val eventCodeEnd = td.indexOf("eventCode=", emIndex) + 10
+                        val eventDateEnd = td.indexOf("eventDate=", emIndex) + 10
+                        val event = SchoolEvent(
+                            td.substring(strongEnd, td.indexOf("</strong>")),
+                            td.substring(eventCodeEnd, eventCodeEnd + 4),
+                            td.substring(eventDateEnd, eventDateEnd + 8)
+                        )
+                        if (deep && school != null) event.updateEventInfo(school)
+                        ret[td.substring(emEnd, td.indexOf("</em>")).toInt()] = event
+                    }
+                }
+            }
+            return ret
+        }
+
+        fun parseEventInfo(data: String): JSONObject {
+            val ret = JSONObject()
+            val tdStart = data.indexOf("<td class=\"textL\">", data.indexOf("해당학년</th>"))
+            val grades = JSONArray()
+            data.substring(tdStart + 18, data.indexOf("</td>", tdStart)).split("\n").forEach { t ->
+                if (t.contains("학년")) grades.add(t.replace("학년", "").trim().toLong())
+            }
+            ret["targetGrades"] = grades
+            val textareaStart = data.indexOf("readonly\">") + 10
+            val textarea = data.substring(textareaStart, data.indexOf("</textarea>") + 11)
+            ret["details"] = textarea
             return ret
         }
     }
