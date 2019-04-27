@@ -1,12 +1,17 @@
 package me.itstake.neisinfo
 
-class SchoolMeal(time:MealTime, menus: Array<SchoolMealMenu>) {
+import org.json.simple.JSONArray
+import org.json.simple.JSONObject
+
+class SchoolMeal(val time:MealTime, val menus: Array<SchoolMealMenu>): JSONObject() {
+
     enum class MealTime {
         BREAKFAST,
         LUNCH,
         DINNER
     }
-    class SchoolMealMenu(name: String, allergyInfo:Array<AllergyInfo>) {
+
+    class SchoolMealMenu(val name: String, val allergies:Array<AllergyInfo>): JSONObject() {
         enum class AllergyInfo(val key:Int, val korname:String) {
             EGGS(1, "난류"),
             MILK(2, "우유"),
@@ -33,6 +38,22 @@ class SchoolMeal(time:MealTime, menus: Array<SchoolMealMenu>) {
                     it.key == key
                 }
             }
+        }
+        init {
+            this["name"] = name
+            val allergyList = JSONArray()
+            allergies.iterator().forEach { t ->
+                allergyList.add(t)
+            }
+            this["allergies"] = allergyList
+        }
+    }
+
+    init {
+        this["time"] = time
+        this["menus"] = JSONArray()
+        menus.iterator().forEach { t ->
+            (this["menus"] as JSONArray).add(t)
         }
     }
 }

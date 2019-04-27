@@ -3,8 +3,6 @@ package me.itstake.neisinfo
 import org.json.simple.JSONArray
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.URL
 import java.net.URLEncoder
 
@@ -16,7 +14,7 @@ import java.net.URLEncoder
  * @property code School code of selected school.
  * @constructor Creates an school object within basic information.
  */
-class School(private val type:SchoolType, private val region:SchoolRegion, private val code:String) {
+class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
     // ENUMS
     enum class SchoolType(val type:Int) {
         KINDERGARDEN(1),
@@ -51,12 +49,10 @@ class School(private val type:SchoolType, private val region:SchoolRegion, priva
         JEJU("jje.go.kr")
     }
 
+    //URL FOR REQUEST
+
     // STATIC METHODS FOR FIND SCHOOL
     companion object {
-        val MONTHLY_MENU_URL = "sts_sci_md00_001.do"
-        val SCHDULE_URL = "sts_sci_sf01_001.do"
-        val SCHOOL_INFO_URL = "sts_sci_si00_001.do"
-        val SCHOOL_CODE_URL = "spr_ccm_cm01_100.do"
 
         /**
          * Use this function to lookup school by name and region.
@@ -66,9 +62,7 @@ class School(private val type:SchoolType, private val region:SchoolRegion, priva
          * @return Array List of search results of School.
          */
         fun findSchool(region: SchoolRegion, name: String):ArrayList<School> {
-            val requestUrl:StringBuilder = StringBuilder()
-            requestUrl.append("https://par.").append(region.url).append("/").append(SCHOOL_CODE_URL).append("?kraOrgNm=").append(URLEncoder.encode(name, "utf-8")).append("&")
-            val data = URL(requestUrl.toString()).readText(Charsets.UTF_8)
+            val data = URL("https://par.${region.url}/spr_ccm_cm01_100.do?kraOrgNm=${URLEncoder.encode(name, "utf-8")}&").readText(Charsets.UTF_8)
             val results = ((JSONParser().parse(data) as JSONObject).get("resultSVO") as? JSONObject)?.get("orgDVOList") as? JSONArray
                 ?:
                 return arrayListOf()
@@ -88,7 +82,9 @@ class School(private val type:SchoolType, private val region:SchoolRegion, priva
      * @return Meal data based on JSON
      */
     fun getMealMonthly(year: Int, month: Int): JSONObject {
+        val menuUrl = URL("https://stu.${region.url}/sts_sci_md00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
         val meals = JSONObject()
+        meals[1] = SchoolMeal(SchoolMeal.MealTime.LUNCH, arrayOf(SchoolMeal.SchoolMealMenu("밥", arrayOf())))
         return meals
     }
 
@@ -99,6 +95,7 @@ class School(private val type:SchoolType, private val region:SchoolRegion, priva
      * @return Schedule data based on JSON
      */
     fun getSchedule(year: Int, month: Int): JSONObject {
+        val scheduleUrl = URL("https://stu.${region.url}/sts_sci_sf01_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
         val schedule = JSONObject()
         return schedule
     }
@@ -108,26 +105,7 @@ class School(private val type:SchoolType, private val region:SchoolRegion, priva
      * @return Get School infomation based on JSON
      */
     fun getSchoolInfo(): SchoolInfo {
-        val requestUrl:StringBuilder = StringBuilder()
-        requestUrl.append("https://stu.").append(region.url).append("/").append(SCHOOL_INFO_URL).append("?schulCode=").append(code)
-            .append("&schulCrseScCode=").append(getSchoolType().type).append("&schulKndScCode=0").append(getSchoolType().type).append("&")
-        val data = URL(requestUrl.toString()).readText(Charsets.UTF_8)
+        val data = URL("https://stu.${region.url}/sts_sci_si00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&").readText(Charsets.UTF_8)
         return NeisParser.parseSchoolInfo(data)
     }
-
-
-    /**
-     * Get School code of this School.
-     */
-    fun getSchoolCode(): String = this.code
-
-    /**
-     * Get School type of this School.
-     */
-    fun getSchoolType(): SchoolType = this.type
-
-    /**
-     * Get School region of this School.
-     */
-    fun getSchoolRegion(): SchoolRegion = this.region
 }
