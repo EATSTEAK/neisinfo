@@ -1,2 +1,2 @@
 # neisinfo
-Get School Information from NEIS Web Service.
+Get School Information on JSON from NEIS Web Service.
