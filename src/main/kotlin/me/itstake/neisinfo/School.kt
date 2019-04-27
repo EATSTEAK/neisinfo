@@ -90,6 +90,7 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * Get Schedule data of Selected Month from NEIS Server.
      * @param year
      * @param month
+     * @param deep Perform a deep find. this will make a lot of web requests, but you'll get details(which you can get with updateEventInfo() function in SchoolEvent object) for event.
      * @return Schedule data based on JSON
      */
     fun getSchedule(year: Int, month: Int, deep: Boolean): JSONObject =
