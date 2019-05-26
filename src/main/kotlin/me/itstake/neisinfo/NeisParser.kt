@@ -1,23 +1,24 @@
 package me.itstake.neisinfo
 
-import org.json.simple.JSONArray
-import org.json.simple.JSONObject
 
 class NeisParser {
     companion object {
 
         //FOR SCHOOL INFO
-        fun parseSchoolInfo(data: String): SchoolInfo {
+        fun parseSchoolInfo(data: String): Info {
             val convertKey = hashMapOf("학교명" to "name", "우편번호" to "zipCode", "주소" to "address", "전화번호" to "callNum", "팩스번호" to "faxNum", "홈페이지주소" to "homepage", "학생수" to "stuNum", "남" to "stuNumMen", "여" to "stuNumWomen", "학년별 학급수" to "classNumByGrade", "교원정보" to "teacherNum")
             val table1starts = data.indexOf("<table cellspacing=\"0\" summary=\"이 표는")
             val table1ends = data.indexOf("</table>") + 8
             val table2starts = data.indexOf("<table cellspacing=\"0\" summary=\"이 표는", table1ends)
             val table2ends = data.indexOf("</table>", table1ends)
-            val table1 = infoTableToMap(data.substring(table1starts, table1ends))
+            val table1 = infoTableToMap(data.substring(table1starts, table1ends)) as HashMap
             table1.putAll(infoTableToMap(data.substring(table2starts, table2ends)))
-            val ret = JSONObject()
-            table1.forEach { t, u -> if(convertKey.containsKey(t)) ret[convertKey[t]] = convertInfoValue(t as String, u as String) }
-            return SchoolInfo(ret)
+            val ret = HashMap<String, Any>()
+            table1.forEach { t, u ->
+                val ck = convertKey[t]
+                if (convertKey.containsKey(t) && ck != null) ret.put(ck, convertInfoValue(t, u))
+            }
+            return Info.fromMap(ret)
         }
 
         private fun convertInfoValue(t:String, u: String): Any {
@@ -25,9 +26,9 @@ class NeisParser {
                 "우편번호" -> u.toLong()
                 "학생수", "남", "여" -> u.replace("명", "").trim().toLong()
                 "학년별 학급수" -> {
-                    val array = JSONArray()
+                    val array = ArrayList<Int>()
                     u.split(",").forEach { v ->
-                        array.add(v.split("(")[1].replace("학급)", "").toLong())
+                        array.add(v.split("(")[1].replace("학급)", "").toInt())
                     }
                     array
                 }
@@ -39,10 +40,10 @@ class NeisParser {
             }
         }
 
-        private fun infoTableToMap(table: String): JSONObject {
+        private fun infoTableToMap(table: String): Map<String, String> {
             var lastSearchedIndex = 0
             var searchedIndex:Int
-            val ret = JSONObject()
+            val ret = HashMap<String, String>()
             while(lastSearchedIndex > -1) {
                 val thIndex = table.indexOf("<th", lastSearchedIndex)
                 if(thIndex <= -1) break
@@ -58,11 +59,11 @@ class NeisParser {
         }
 
         //FOR SCHOOL MEALS
-        fun parseSchoolMeals(data:String): JSONObject {
+        fun parseSchoolMeals(data: String): Map<Int, Meal> {
             val table = data.substring(data.indexOf("<table cellspacing=\"0\" summary=\"이 표는"), data.indexOf("</table>") + 8)
             var lastSearchedIndex = 0
             var searchedIndex:Int
-            val ret = JSONObject()
+            val ret = HashMap<Int, Meal>()
             while(lastSearchedIndex > -1) {
                 val tdIndex = table.indexOf("<td", lastSearchedIndex)
                 if(tdIndex <= -1) break
@@ -76,37 +77,47 @@ class NeisParser {
                     val breakfastIndex = td.indexOf("[조식]")
                     val lunchIndex = td.indexOf("[중식]")
                     val dinnerIndex = td.indexOf("[석식]")
-                    val dayMeals = JSONObject()
-                    if(breakfastIndex > -1) dayMeals[SchoolMeal.MealTime.BREAKFAST.name] = toMealArray(td.subList(breakfastIndex + 1, if(lunchIndex > -1) lunchIndex -1 else td.size - 1))
-                    if(lunchIndex > -1) dayMeals[SchoolMeal.MealTime.LUNCH.name] = toMealArray(td.subList(lunchIndex + 1, if(dinnerIndex > -1) dinnerIndex -1 else td.size - 1))
-                    if(dinnerIndex > -1) dayMeals[SchoolMeal.MealTime.DINNER.name] = toMealArray(td.subList(dinnerIndex + 1, td.size - 1))
-                    ret[day] = dayMeals
+                    ret[day] = Meal(
+                        if (breakfastIndex > -1) toMealArray(
+                            td.subList(
+                                breakfastIndex + 1,
+                                if (lunchIndex > -1) lunchIndex - 1 else td.size - 1
+                            )
+                        ) else null,
+                        if (lunchIndex > -1) toMealArray(
+                            td.subList(
+                                lunchIndex + 1,
+                                if (dinnerIndex > -1) dinnerIndex - 1 else td.size - 1
+                            )
+                        ) else null,
+                        if (dinnerIndex > -1) toMealArray(td.subList(dinnerIndex + 1, td.size - 1)) else null
+                    )
                 }
             }
             return ret
         }
 
-        private fun toMealArray(menus: List<String>): JSONArray {
-            val ret = JSONArray()
+        private fun toMealArray(menus: List<String>): List<MealMenu> {
+            val ret = ArrayList<MealMenu>()
             menus.forEach { t ->
-                val allergies = ArrayList<SchoolMeal.AllergyInfo>()
+                val allergies = ArrayList<MealMenu.AllergyInfo>()
                 var name = t
                 for(i in 1..18) {
                     val index = t.indexOf("$i.")
-                    if(index > -1) allergies.add(SchoolMeal.AllergyInfo.getByKey(i)); name = name.replace("$i.", "")
+                    if (index > -1) allergies.add(MealMenu.AllergyInfo.getByKey(i)); name = name.replace("$i.", "")
                 }
-                ret.add(SchoolMeal(name.trim(), allergies))
+                ret.add(MealMenu(name.trim(), allergies))
             }
             return ret
         }
 
         //FOR SCHOOL SCHEDULE
-        fun parseSchoolSchedule(data: String, deep: Boolean, school: School?): JSONObject {
+        fun parseSchoolSchedule(data: String, deep: Boolean, school: School?): Map<Int, Event> {
             val table =
                 data.substring(data.indexOf("<table cellspacing=\"0\" summary=\"월간학사"), data.indexOf("</table>") + 8)
             var lastSearchedIndex = 0
             var searchedIndex: Int
-            val ret = JSONObject()
+            val ret = HashMap<Int, Event>()
             while (lastSearchedIndex > -1) {
                 val tdIndex = table.indexOf("<td", lastSearchedIndex)
                 if (tdIndex <= -1) break
@@ -122,10 +133,10 @@ class NeisParser {
                         val strongEnd = td.indexOf(">", strongIndex) + 1
                         val eventCodeEnd = td.indexOf("eventCode=", emIndex) + 10
                         val eventDateEnd = td.indexOf("eventDate=", emIndex) + 10
-                        val event = SchoolEvent(
-                            td.substring(strongEnd, td.indexOf("</strong>")),
-                            td.substring(eventCodeEnd, eventCodeEnd + 4),
-                            td.substring(eventDateEnd, eventDateEnd + 8)
+                        val event = Event(
+                            name = td.substring(strongEnd, td.indexOf("</strong>")),
+                            code = td.substring(eventCodeEnd, eventCodeEnd + 4),
+                            date = td.substring(eventDateEnd, eventDateEnd + 8)
                         )
                         if (deep && school != null) event.updateEventInfo(school)
                         ret[td.substring(emEnd, td.indexOf("</em>")).toInt()] = event
@@ -135,18 +146,15 @@ class NeisParser {
             return ret
         }
 
-        fun parseEventInfo(data: String): JSONObject {
-            val ret = JSONObject()
+        fun parseEventInfo(data: String): EventInfo {
             val tdStart = data.indexOf("<td class=\"textL\">", data.indexOf("해당학년</th>"))
-            val grades = JSONArray()
+            val grades = ArrayList<Int>()
             data.substring(tdStart + 18, data.indexOf("</td>", tdStart)).split("\n").forEach { t ->
-                if (t.contains("학년")) grades.add(t.replace("학년", "").trim().toLong())
+                if (t.contains("학년")) grades.add(t.replace("학년", "").trim().toInt())
             }
-            ret["targetGrades"] = grades
             val textareaStart = data.indexOf("readonly\">") + 10
             val textarea = data.substring(textareaStart, data.indexOf("</textarea>") + 11)
-            ret["details"] = textarea
-            return ret
+            return EventInfo(targetGrades = grades, details = textarea)
         }
     }
 }

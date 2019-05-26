@@ -1,9 +1,6 @@
 package me.itstake.neisinfo
 
-import org.json.simple.JSONArray
-import org.json.simple.JSONObject
-
-class SchoolMeal(val name: String, val allergies:ArrayList<AllergyInfo>): JSONObject() {
+data class MealMenu(val name: String, val allergies: ArrayList<AllergyInfo>) {
 
     enum class MealTime {
         BREAKFAST,
@@ -36,14 +33,5 @@ class SchoolMeal(val name: String, val allergies:ArrayList<AllergyInfo>): JSONOb
                 it.key == key
             }
         }
-    }
-
-    init {
-        this["name"] = name
-        val allergyList = JSONArray()
-        allergies.iterator().forEach { t ->
-            allergyList.add(t.name)
-        }
-        this["allergies"] = allergyList
     }
 }

@@ -1,8 +1,7 @@
 package me.itstake.neisinfo
 
-import org.json.simple.JSONArray
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
+import org.json.JSONArray
+import org.json.JSONObject
 import java.net.URL
 import java.net.URLEncoder
 
@@ -15,6 +14,9 @@ import java.net.URLEncoder
  * @constructor Creates an school object within basic information.
  */
 class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
+
+    var name = ""
+
     // ENUMS
     enum class SchoolType(val type:Int) {
         KINDERGARDEN(1),
@@ -49,7 +51,10 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
         JEJU("jje.go.kr")
     }
 
-    //URL FOR REQUEST
+    //INIT WITH NAME
+    constructor(type: SchoolType, region: SchoolRegion, code: String, name: String) : this(type, region, code) {
+        this.name = name
+    }
 
     // STATIC METHODS FOR FIND SCHOOL
     companion object {
@@ -63,9 +68,7 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
          */
         fun findSchool(region: SchoolRegion, name: String):ArrayList<School> {
             val data = URL("https://par.${region.url}/spr_ccm_cm01_100.do?kraOrgNm=${URLEncoder.encode(name, "utf-8")}&").readText(Charsets.UTF_8)
-            val results = ((JSONParser().parse(data) as JSONObject).get("resultSVO") as? JSONObject)?.get("orgDVOList") as? JSONArray
-                ?:
-                return arrayListOf()
+            val results = (JSONObject(data).get("resultSVO") as JSONObject).get("orgDVOList") as JSONArray
             val resultMap = ArrayList<School>()
             results.forEach { u ->
                 val si = u as JSONObject
@@ -79,9 +82,9 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * Get Meal data of Selected Month from NEIS Server.
      * @param year
      * @param month
-     * @return Meal data based on JSON
+     * @return Meal data. key is day of month, value is meal information object.
      */
-    fun getMealMonthly(year: Int, month: Int): JSONObject =
+    fun getMealMonthly(year: Int, month: Int): Map<Int, Meal> =
         NeisParser.parseSchoolMeals(
             URL("https://stu.${region.url}/sts_sci_md00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&schYm=$year${String.format("%02d", month)}&")
                 .readText())
@@ -90,10 +93,10 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * Get Schedule data of Selected Month from NEIS Server.
      * @param year
      * @param month
-     * @param deep Perform a deep find. this will make a lot of web requests, but you'll get details(which you can get with updateEventInfo() function in SchoolEvent object) for event.
-     * @return Schedule data based on JSON
+     * @param deep Perform a deep find. this will make a lot of web requests, but you'll get details(which you can get with updateEventInfo() function in Event object) for event.
+     * @return Schedule data. key is day of month, value is event information object.
      */
-    fun getSchedule(year: Int, month: Int, deep: Boolean): JSONObject =
+    fun getSchedule(year: Int, month: Int, deep: Boolean): Map<Int, Event> =
         NeisParser.parseSchoolSchedule(
             URL("https://stu.${region.url}/sts_sci_sf01_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&ay=$year&mm=${String.format("%02d", month)}&")
                 .readText(), deep, this
@@ -103,7 +106,7 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
      * Get basic school information from NEIS Server.
      * @return Get School infomation based on JSON
      */
-    fun getSchoolInfo(): SchoolInfo =
+    fun getSchoolInfo(): Info =
         NeisParser.parseSchoolInfo(
             URL("https://stu.${region.url}/sts_sci_si00_001.do?schulCode=$code&schulCrseScCode=${type.type}&schulKndScCode=0${type.type}&")
                 .readText())
