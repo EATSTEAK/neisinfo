@@ -1,6 +1,5 @@
 package me.itstake.neisinfo
 
-import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
 import java.net.URLEncoder
@@ -68,11 +67,18 @@ class School(val type:SchoolType, val region:SchoolRegion, val code:String) {
          */
         fun findSchool(region: SchoolRegion, name: String):ArrayList<School> {
             val data = URL("https://par.${region.url}/spr_ccm_cm01_100.do?kraOrgNm=${URLEncoder.encode(name, "utf-8")}&").readText(Charsets.UTF_8)
-            val results = (JSONObject(data).get("resultSVO") as JSONObject).get("orgDVOList") as JSONArray
+            val results = JSONObject(data).getJSONObject("resultSVO").getJSONObject("data").getJSONArray("orgDVOList")
             val resultMap = ArrayList<School>()
-            results.forEach { u ->
-                val si = u as JSONObject
-                resultMap.add(School(SchoolType.getByType(si["schulCrseScCode"].toString().toInt()), region, si["orgCode"] as String))
+            for (i in 0 until results.length()) {
+                val si = results.getJSONObject(i)
+                resultMap.add(
+                    School(
+                        SchoolType.getByType(si["schulCrseScCode"].toString().toInt()),
+                        region,
+                        si["orgCode"] as String,
+                        si["kraOrgNm"] as String
+                    )
+                )
             }
             return resultMap
         }
