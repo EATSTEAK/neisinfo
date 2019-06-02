@@ -3,10 +3,6 @@ package me.itstake.neisinfo
 import java.io.StringWriter
 import java.util.HashMap
 import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.forEach
-import kotlin.collections.hashMapOf
 import kotlin.collections.set
 
 
@@ -90,16 +86,16 @@ class NeisParser {
                         if (breakfastIndex > -1) toMealArray(
                             td.subList(
                                 breakfastIndex + 1,
-                                if (lunchIndex > -1) lunchIndex - 1 else td.size - 1
+                                if (lunchIndex > -1) lunchIndex else td.size
                             )
                         ) else null,
                         if (lunchIndex > -1) toMealArray(
                             td.subList(
                                 lunchIndex + 1,
-                                if (dinnerIndex > -1) dinnerIndex - 1 else td.size - 1
+                                if (dinnerIndex > -1) dinnerIndex else td.size
                             )
                         ) else null,
-                        if (dinnerIndex > -1) toMealArray(td.subList(dinnerIndex + 1, td.size - 1)) else null
+                        if (dinnerIndex > -1) toMealArray(td.subList(dinnerIndex + 1, td.size)) else null
                     )
                 }
             }
